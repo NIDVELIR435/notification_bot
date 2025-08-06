@@ -10,7 +10,7 @@ import { startVoiceSession } from './voiceActivity';
  * Handler for when a new member joins the Discord server
  * Sends a notification to Telegram with member details
  */
-discordClient.on('guildMemberAdd', (member: GuildMember) => {
+discordClient.on(Events.GuildMemberAdd, (member: GuildMember) => {
     const userId = member.user.id;
     
     // Skip if user is currently being ignored to prevent spam
@@ -23,53 +23,56 @@ discordClient.on('guildMemberAdd', (member: GuildMember) => {
         `📅 *Joined*: ${new Date().toLocaleString()}`
     ].join('\n');
 
-    void sendMessageToTelegram(joinNotificationMessage, 'guildMemberAdd', { parse_mode: 'Markdown' });
+    void sendMessageToTelegram(joinNotificationMessage, Events.GuildMemberAdd, { parse_mode: 'Markdown' });
     addUserToIgnoreList(userId);
 });
 
 /**
  * Handler for voice state changes (join/leave/move voice channels)
- * Currently only handles voice channel joins to track activity
+ * Sends detailed notifications for voice channel activity.
  */
-discordClient.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
-    const userId = newState?.member?.user?.id;
-    
-    // Skip if user is currently being ignored or user ID is missing
-    if (!userId || isUserIgnored(userId)) return;
+discordClient.on(Events.VoiceStateUpdate, (oldState: VoiceState, newState: VoiceState) => {
+    const member = newState.member ?? oldState.member;
+    if (!member) return;
 
-    const displayName = newState?.member?.user?.globalName ?? newState?.member?.user?.username;
-    const serverName = newState?.guild?.name;
+    const userId = member.user.id;
+    if (isUserIgnored(userId)) return;
 
-    // Check if user joined a voice channel (wasn't in voice before, now is)
-    const userJoinedVoiceChannel = !oldState.channelId && newState.channelId;
-    
-    if (userJoinedVoiceChannel && newState.channelId) {
-        const channelName = newState.channel?.name;
-        
-        const voiceJoinMessage = `*${displayName}* joined voice channel *${channelName}* in *${serverName}*!`;
-        void sendMessageToTelegram(voiceJoinMessage, 'voiceStateUpdate', { parse_mode: 'Markdown' });
-        
-        // Add user to ignore list to prevent spam notifications
-        addUserToIgnoreList(userId);
-        
-        // Start tracking voice activity for this user
-        startVoiceSession(userId, newState.channelId);
-    }
-    
-    // TODO: Implement voice channel leave detection
-    // Currently commented out - can be enabled if needed
-    /*
-    const userLeftVoiceChannel = oldState.channelId && !newState.channelId;
-    if (userLeftVoiceChannel) {
-        const channelName = oldState.channel?.name;
-        const voiceLeaveMessage = `*${displayName}* left voice channel *${channelName}* in *${serverName}*!`;
-        void sendMessageToTelegram(voiceLeaveMessage, 'voiceStateUpdate', { parse_mode: 'Markdown' });
-        addUserToIgnoreList(userId);
-        
-        // End voice session tracking
+    const displayName = member.user.globalName ?? member.user.username;
+    const serverName = newState.guild?.name ?? oldState.guild?.name;
+
+    const userJoined = !oldState.channelId && newState.channelId;
+    const userLeft = oldState.channelId && !newState.channelId;
+    const userMoved = oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId;
+
+    let notificationMessage = '';
+    let eventType = '';
+
+    if (userJoined && newState.channel) {
+        const memberCount = newState.channel.members.size;
+        notificationMessage = `*${displayName}* joined voice channel *${newState.channel.name}* in *${serverName}*.\n👥 There are now ${memberCount} user(s) in the channel.`;
+        eventType = 'voiceJoin';
+        startVoiceSession(userId, newState.channelId as string);
+
+    } /*else if (userLeft && oldState.channel) {
+        const memberCount = oldState.channel.members.size;
+        notificationMessage = `*${displayName}* left voice channel *${oldState.channel.name}* in *${serverName}*.\n👥 There are ${memberCount} user(s) remaining.`;
+        eventType = 'voiceLeave';
         endVoiceSession(userId);
+
+    } *//*else if (userMoved && oldState.channel && newState.channel) {
+        const newMemberCount = newState.channel.members.size;
+        notificationMessage = `*${displayName}* moved from *${oldState.channel.name}* to *${newState.channel.name}* in *${serverName}*.\n👥 *${newState.channel.name}* now has ${newMemberCount} user(s).`;
+        eventType = 'voiceMove';
+        // The session continues, but we update the channel
+        startVoiceSession(userId, newState.channelId as string);
+    }*/
+
+    if (notificationMessage) {
+        sendMessageToTelegram(notificationMessage, eventType, { parse_mode: 'Markdown' })
+            .catch(error => console.error(`Failed to send voice notification for ${displayName}`, error));
+        addUserToIgnoreList(userId);
     }
-    */
 });
 
 /**
@@ -84,6 +87,6 @@ discordClient.once(Events.ClientReady, (readyClient) => {
  * Handler for Discord client errors
  * Logs errors to console for debugging
  */
-discordClient.on('error', (error: Error) => {
+discordClient.on(Events.Error, (error: Error) => {
     console.error('❌ Discord client error:', error.message);
 });
