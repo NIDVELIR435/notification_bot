@@ -1,13 +1,38 @@
-// Import all modules
+/**
+ * Notification Bot - Main Entry Point
+ * 
+ * This bot monitors Discord server activity and sends notifications to Telegram.
+ * Features:
+ * - New member join notifications
+ * - Voice channel activity tracking
+ * - Telegram commands for server info and voice statistics
+ */
+
+// ==================== MODULE IMPORTS ====================
 import { config } from './src/config';
 import { discordClient, telegramBot } from './src/botClients';
+
+// Import command handlers and event listeners (side effects)
 import './src/telegramCommands';
 import './src/discordEvents';
 
-// Error handling for Telegram bot
-telegramBot.on('polling_error', (error: any) => {
-    console.error('Telegram polling error:', error.message);
+// ==================== ERROR HANDLING ====================
+
+/**
+ * Handle Telegram bot polling errors
+ * These can occur due to network issues or API rate limits
+ */
+telegramBot.on('polling_error', (error: Error) => {
+    console.error('❌ Telegram polling error:', error.message);
 });
 
-// Start the Discord bot
-discordClient.login(config.discordToken);
+// ==================== BOT INITIALIZATION ====================
+
+/**
+ * Start the Discord bot with the configured token
+ * This will trigger the 'ready' event once successfully connected
+ */
+discordClient.login(config.discordToken).catch((error: Error) => {
+    console.error('❌ Failed to login to Discord:', error.message);
+    process.exit(1);
+});
