@@ -1,4 +1,4 @@
-import { config } from './config';
+import { config } from "./config";
 
 /**
  * Map to store ignored users and their expiration timestamps
@@ -12,17 +12,17 @@ const ignoredUsers = new Map<string, number>();
  * @returns true if the user should be ignored, false otherwise
  */
 export const isUserIgnored = (userId: string | undefined): boolean => {
-    if (!userId) return false;
-    
-    const ignoredUntil = ignoredUsers.get(userId);
-    if (!ignoredUntil) return false;
+  if (!userId) return false;
 
-    // If ignore period has expired, remove from map and return false
-    if (Date.now() > ignoredUntil) {
-        ignoredUsers.delete(userId);
-        return false;
-    }
-    return true;
+  const ignoredUntil = ignoredUsers.get(userId);
+  if (!ignoredUntil) return false;
+
+  // If ignore period has expired, remove from map and return false
+  if (Date.now() > ignoredUntil) {
+    ignoredUsers.delete(userId);
+    return false;
+  }
+  return true;
 };
 
 /**
@@ -30,9 +30,9 @@ export const isUserIgnored = (userId: string | undefined): boolean => {
  * @param userId - The Discord user ID to ignore
  */
 export const addUserToIgnoreList = (userId: string | undefined): void => {
-    if (!userId) return;
-    
-    ignoredUsers.set(userId, Date.now() + config.userIgnoreDurationMs);
+  if (!userId) return;
+
+  ignoredUsers.set(userId, Date.now() + config.userIgnoreDurationMs);
 };
 
 /**
@@ -45,9 +45,9 @@ export const addUserToIgnoreList = (userId: string | undefined): void => {
  * formatDuration(30) // Returns "30s"
  */
 export const formatDuration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-    
-    return `${hours > 0 ? hours + 'h ' : ''}${minutes > 0 ? minutes + 'm ' : ''}${remainingSeconds}s`;
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${hours > 0 ? hours + "h " : ""}${minutes > 0 ? minutes + "m " : ""}${remainingSeconds}s`;
 };
