@@ -1,10 +1,5 @@
 # Discord-Telegram Notification Bot
 
-## TODO
-
-- compare function
-- one per hour check achievement updates
-
 ## Overview
 
 A TypeScript-based notification bot that bridges Discord and Telegram, monitoring Discord server activity and sending real-time notifications to Telegram. The bot features a modular architecture with comprehensive documentation and type safety.
