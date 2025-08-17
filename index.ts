@@ -11,6 +11,7 @@
 // ==================== MODULE IMPORTS ====================
 import { config } from "./src/config";
 import { discordClient, telegramBot } from "./src/botClients";
+import { achievementScheduler } from "./src/achievementScheduler";
 
 import "./src/telegramCommands";
 import "./src/discordEvents";
@@ -25,7 +26,31 @@ telegramBot.on("polling_error", (error: Error) => {
  * Start the Discord bot with the configured token
  * This will trigger the 'ready' event once successfully connected
  */
-discordClient.login(config.discordToken).catch((error: Error) => {
-  console.error("❌ Failed to login to Discord:", error.message);
-  process.exit(1);
+discordClient
+  .login(config.discordToken)
+  .then(() => {
+    console.log("✅ Discord bot logged in successfully");
+  })
+  .catch((error: Error) => {
+    console.error("❌ Failed to login to Discord:", error.message);
+    process.exit(1);
+  });
+/**
+ * Start the Achievement scheduler
+ */
+achievementScheduler.start();
+
+// ==================== GRACEFUL SHUTDOWN ====================
+process.on("SIGINT", () => {
+  console.log("\n🛑 Shutting down bot...");
+  achievementScheduler.stop();
+  discordClient.destroy();
+  process.exit(0);
+});
+
+process.on("SIGTERM", () => {
+  console.log("\n🛑 Shutting down bot...");
+  achievementScheduler.stop();
+  discordClient.destroy();
+  process.exit(0);
 });

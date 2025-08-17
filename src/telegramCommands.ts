@@ -7,7 +7,7 @@ import { getVoiceActivity, resetVoiceActivity } from "./voiceActivity";
 import { formatDuration } from "./utils";
 
 import { TROPHY_EMOJIS } from "./psn/trophy-emojis.constant";
-import { getLatestTrophies } from "./psn/psn-api";
+import { getTrophiesBySearch } from "./psn/psn-api";
 import { formatTime } from "./utils/format-time";
 
 /**
@@ -23,11 +23,15 @@ interface CommandDefinition {
  */
 const AVAILABLE_COMMANDS: CommandDefinition[] = [
   {
+    name: "/help",
+    description: "Display all available commands",
+  },
+  {
     name: "/voicesummary",
     description: "Display voice activity summary for users.",
   },
   {
-    name: `/trophies user game`,
+    name: `/trophies user1 game`,
     description: `See user earned trophies for a game. \nUsers: [[${Object.keys(config.psTokens).join(", ")}]]`,
   },
   {
@@ -116,10 +120,8 @@ telegramBot.onText(
     const searchWord = match && match[4] ? match[4].trim().toLowerCase() : null; // Second word: game name
 
     try {
-      const { gameTitle, trophiesProgress, trophies } = await getLatestTrophies(
-        nickname,
-        searchWord,
-      );
+      const { gameTitle, trophiesProgress, trophies } =
+        await getTrophiesBySearch(nickname, searchWord);
       if (!trophies || trophies.length === 0) {
         await sendMessageToTelegram("🏆 No trophies found.", {
           parse_mode: "Markdown",
@@ -173,8 +175,8 @@ telegramBot.onText(
     try {
       // Fetch trophies for both users
       const [result1, result2] = await Promise.all([
-        getLatestTrophies(user1, gameName),
-        getLatestTrophies(user2, gameName),
+        getTrophiesBySearch(user1, gameName),
+        getTrophiesBySearch(user2, gameName),
       ]);
 
       const { gameTitle: title1, trophies: trophies1 } = result1;

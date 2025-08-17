@@ -8,18 +8,21 @@ A TypeScript-based notification bot that bridges Discord and Telegram, monitorin
 
 - **📢 Discord Server Monitoring**: Tracks new member joins with detailed information
 - **🎤 Voice Channel Activity**: Monitors and tracks voice channel usage with time statistics
+- **🏆 PSN Achievement Notifications**: Automatically checks for new PlayStation trophies and sends notifications
 - **🤖 Telegram Commands**: Interactive commands for server information and voice activity
 - **⏰ Smart Ignore System**: Prevents notification spam with configurable cooldown periods
 - **📊 Voice Activity Tracking**: Comprehensive voice time tracking and statistics
+- **🗄️ SQLite Database**: Tracks sent achievements to prevent duplicate notifications
+- **⏱️ Scheduled Jobs**: Configurable interval-based achievement checking
 - **🛡️ Type Safety**: Full TypeScript implementation with proper error handling
 - **📝 Comprehensive Documentation**: Well-documented code with JSDoc comments
 
 ## 🎮 Telegram Commands
 
 - `/help` - Display all available commands
-- `/serverinfo` - Show Discord server statistics (members, online users, channels)
 - `/voicesummary` - Display voice activity summary for all users
-- `/voicereset` - Reset all voice activity data
+- `/trophies user1 game` - See user earned trophies for a game
+- `/compare user1 user2 game` - See differences in earned trophies for a game between users.
 
 ## 📋 Prerequisites
 
@@ -53,6 +56,8 @@ A TypeScript-based notification bot that bridges Discord and Telegram, monitorin
    TELEGRAM_BOT_TOKEN=your_telegram_bot_token
    TELEGRAM_CHAT_ID=your_telegram_chat_id
    IGNORE_USERS_DURATION_IN_MILISECONDS=300000
+   ACHIEVEMENT_CHECK_INTERVAL_MS=300000
+   PSN_TOKENS={"username1": "token1", "username2": "token2"}
    ```
 
 4. Build the project:
@@ -73,17 +78,24 @@ A TypeScript-based notification bot that bridges Discord and Telegram, monitorin
 ```
 notification_bot/
 ├── src/
-│   ├── config.ts           # Configuration and environment variables
-│   ├── utils.ts            # Utility functions (ignore logic, time formatting)
-│   ├── voiceActivity.ts    # Voice activity tracking and management
-│   ├── botClients.ts       # Discord and Telegram bot initialization
-│   ├── messageService.ts   # Telegram message sending functionality
-│   ├── telegramCommands.ts # Telegram command handlers
-│   └── discordEvents.ts    # Discord event handlers
-├── index.ts                # Main application entry point
-├── package.json            # Project dependencies and scripts
-├── tsconfig.json          # TypeScript configuration
-└── .env                   # Environment variables (not in version control)
+│   ├── config.ts              # Configuration and environment variables
+│   ├── utils.ts               # Utility functions (ignore logic, time formatting)
+│   ├── voiceActivity.ts       # Voice activity tracking and management
+│   ├── botClients.ts          # Discord and Telegram bot initialization
+│   ├── messageService.ts      # Telegram message sending functionality
+│   ├── telegramCommands.ts    # Telegram command handlers
+│   ├── discordEvents.ts       # Discord event handlers
+│   ├── database.ts            # SQLite database for achievement tracking
+│   ├── achievementScheduler.ts # Scheduled achievement checking system
+│   └── psn/
+│       ├── psn-api.ts         # PSN API integration
+│       └── trophy-emojis.constant.ts # Trophy emoji mappings
+├── index.ts                   # Main application entry point
+├── test-achievements.ts       # Test script for achievement system
+├── achievements.db            # SQLite database file (auto-generated)
+├── package.json               # Project dependencies and scripts
+├── tsconfig.json             # TypeScript configuration
+└── .env                      # Environment variables (not in version control)
 ```
 
 ## 🔧 Configuration
@@ -96,6 +108,8 @@ The bot uses environment variables for configuration:
 | `TELEGRAM_BOT_TOKEN`                   | Telegram bot authentication token         | Required           |
 | `TELEGRAM_CHAT_ID`                     | Target Telegram chat ID for notifications | Required           |
 | `IGNORE_USERS_DURATION_IN_MILISECONDS` | Cooldown period to prevent spam           | 300000 (5 minutes) |
+| `ACHIEVEMENT_CHECK_INTERVAL_MS`        | Achievement check interval in milliseconds | 300000 (5 minutes) |
+| `PSN_TOKENS`                          | JSON object with PSN user tokens          | Required           |
 
 ## 🎯 Usage
 
@@ -117,6 +131,8 @@ The bot uses environment variables for configuration:
 
 - **discord.js**: Discord API integration
 - **node-telegram-bot-api**: Telegram bot functionality
+- **psn-api**: PlayStation Network API integration
+- **sqlite3**: SQLite database for achievement tracking
 - **dotenv**: Environment variable management
 - **typescript**: Type safety and development
 - **ts-node**: TypeScript execution for development
