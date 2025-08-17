@@ -24,6 +24,23 @@ A TypeScript-based notification bot that bridges Discord and Telegram, monitorin
 - `/trophies user1 game` - See user earned trophies for a game
 - `/compare user1 user2 game` - See differences in earned trophies for a game between users.
 
+## 🏆 PSN Achievement Notifications
+
+The bot can monitor PlayStation Network accounts for new trophies and send notifications to a Telegram chat.
+
+### Features:
+- **Automatic Checking**: Periodically checks for new trophies for configured PSN users.
+- **Real-time Notifications**: Sends a message to Telegram as soon as a new trophy is earned today.
+- **Duplicate Prevention**: Uses an SQLite database to keep track of achievements that have already been sent, preventing repeat notifications.
+- **Configurable**: You can set the interval for checking achievements and which PSN accounts to monitor via environment variables. You can also configure which trophy types to track (bronze, silver, gold, platinum).
+- **Detailed Information**: The notification message includes:
+    - Trophy type (with an emoji)
+    - Player's username
+    - Game title
+    - Trophy name and description
+    - Rarity and earned percentage
+    - Exact time the trophy was earned.
+
 ## 📋 Prerequisites
 
 - **Node.js**: Version 16 or higher
@@ -74,91 +91,3 @@ A TypeScript-based notification bot that bridges Discord and Telegram, monitorin
    ```
 
 ## 🏗️ Project Structure
-
-```
-notification_bot/
-├── src/
-│   ├── config.ts              # Configuration and environment variables
-│   ├── utils.ts               # Utility functions (ignore logic, time formatting)
-│   ├── voiceActivity.ts       # Voice activity tracking and management
-│   ├── botClients.ts          # Discord and Telegram bot initialization
-│   ├── messageService.ts      # Telegram message sending functionality
-│   ├── telegramCommands.ts    # Telegram command handlers
-│   ├── discordEvents.ts       # Discord event handlers
-│   ├── database.ts            # SQLite database for achievement tracking
-│   ├── achievementScheduler.ts # Scheduled achievement checking system
-│   └── psn/
-│       ├── psn-api.ts         # PSN API integration
-│       └── trophy-emojis.constant.ts # Trophy emoji mappings
-├── index.ts                   # Main application entry point
-├── test-achievements.ts       # Test script for achievement system
-├── achievements.db            # SQLite database file (auto-generated)
-├── package.json               # Project dependencies and scripts
-├── tsconfig.json             # TypeScript configuration
-└── .env                      # Environment variables (not in version control)
-```
-
-## 🔧 Configuration
-
-The bot uses environment variables for configuration:
-
-| Variable                               | Description                               | Default            |
-| -------------------------------------- | ----------------------------------------- | ------------------ |
-| `DISCORD_BOT_TOKEN`                    | Discord bot authentication token          | Required           |
-| `TELEGRAM_BOT_TOKEN`                   | Telegram bot authentication token         | Required           |
-| `TELEGRAM_CHAT_ID`                     | Target Telegram chat ID for notifications | Required           |
-| `IGNORE_USERS_DURATION_IN_MILISECONDS` | Cooldown period to prevent spam           | 300000 (5 minutes) |
-| `ACHIEVEMENT_CHECK_INTERVAL_MS`        | Achievement check interval in milliseconds | 300000 (5 minutes) |
-| `PSN_TOKENS`                          | JSON object with PSN user tokens          | Required           |
-
-## 🎯 Usage
-
-1. **Discord Setup**: Ensure the bot has necessary permissions in your Discord server:
-   - View Channels
-   - Read Message History
-   - View Server Members
-   - Connect to Voice Channels
-
-2. **Telegram Setup**: Add the bot to your Telegram chat and note the chat ID
-
-3. **Operation**: The bot will automatically:
-   - Send notifications when new members join
-   - Track voice channel activity
-   - Respond to Telegram commands
-   - Maintain voice activity statistics
-
-## 📦 Dependencies
-
-- **discord.js**: Discord API integration
-- **node-telegram-bot-api**: Telegram bot functionality
-- **psn-api**: PlayStation Network API integration
-- **sqlite3**: SQLite database for achievement tracking
-- **dotenv**: Environment variable management
-- **typescript**: Type safety and development
-- **ts-node**: TypeScript execution for development
-
-## 🛠️ Development
-
-- **Build**: `npm run build` - Compile TypeScript to JavaScript
-- **Dev Mode**: `npm run start:dev` - Run with hot reload
-- **Type Check**: TypeScript provides compile-time type checking
-
-## 🔍 Error Handling
-
-- Comprehensive error logging for both Discord and Telegram interactions
-- Graceful handling of API failures and network issues
-- Type-safe error handling throughout the application
-- Automatic retry mechanisms for failed operations
-
-## 🚀 Future Enhancements
-
-- [ ] Voice channel leave notifications (currently disabled)
-- [ ] Customizable notification templates
-- [ ] Database integration for persistent data
-- [ ] Web dashboard for statistics
-- [ ] Multi-server support
-- [ ] Advanced voice activity analytics
-
-## 📄 License
-
-This project is private and not licensed for public use.
