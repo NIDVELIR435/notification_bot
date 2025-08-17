@@ -24,11 +24,3 @@ export const discordClient = new Client({
 export const telegramBot = new TelegramBot(config.telegramToken, {
   polling: true,
 });
-
-/**
- * Configure Telegram bot to show available commands in the menu
- * This enables users to see available commands when interacting with the bot
- */
-void telegramBot.setChatMenuButton({
-  menu_button: { type: "commands" },
-});

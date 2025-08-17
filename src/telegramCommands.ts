@@ -3,8 +3,6 @@ import TelegramBot from "node-telegram-bot-api";
 import { telegramBot, discordClient } from "./botClients";
 import { config } from "./config";
 import { sendMessageToTelegram } from "./messageService";
-import { getVoiceActivity, resetVoiceActivity } from "./voiceActivity";
-import { formatDuration } from "./utils";
 
 import { TROPHY_EMOJIS } from "./psn/trophy-emojis.constant";
 import { getTrophiesBySearch } from "./psn/psn-api";
@@ -17,6 +15,14 @@ interface CommandDefinition {
   name: string;
   description: string;
 }
+
+/**
+ * Commands to be displayed in the Telegram menu
+ */
+export const MENU_COMMANDS: TelegramBot.BotCommand[] = [
+  { command: "help", description: "Display all available commands" },
+  { command: "voicesummary", description: "Display voice activity summary" },
+];
 
 /**
  * Available bot commands with their descriptions

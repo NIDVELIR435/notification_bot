@@ -13,8 +13,18 @@ import { config } from "./src/config";
 import { discordClient, telegramBot } from "./src/botClients";
 import { achievementScheduler } from "./src/achievementScheduler";
 
-import "./src/telegramCommands";
+import { MENU_COMMANDS } from "./src/telegramCommands";
 import "./src/discordEvents";
+
+// ==================== COMMANDS INITIALIZATION ====================
+telegramBot
+  .setMyCommands(MENU_COMMANDS)
+  .then(() => {
+    console.log("✅ Telegram commands set successfully");
+  })
+  .catch((error: Error) => {
+    console.error("❌ Failed to set Telegram commands:", error.message);
+  });
 
 // ==================== ERROR HANDLING ====================
 telegramBot.on("polling_error", (error: Error) => {
