@@ -10,7 +10,7 @@ import {
 } from "psn-api";
 import { config } from "../config";
 
-async function getAuthorizationTokens(token: string) {
+export async function getAuthorizationTokens(token: string) {
   // We'll exchange your NPSSO for a special access code.
   const accessCode = await exchangeNpssoForAccessCode(token);
 
@@ -18,7 +18,7 @@ async function getAuthorizationTokens(token: string) {
   return exchangeAccessCodeForAuthTokens(accessCode);
 }
 
-function getUserToken(userName: string | null) {
+export function getUserToken(userName: string | null) {
   const token = config.psTokens[userName ?? ""];
 
   if (!token)
@@ -70,77 +70,6 @@ export const getTrophiesBySearch = async (
         ),
     );
   } while (!firstTrophy && nextOffset);
-
-  if (!firstTrophy)
-    return { gameTitle: null, trophiesProgress: 0, trophies: [] };
-
-  const options =
-    firstTrophy.trophyTitlePlatform === "PS5"
-      ? ({ npServiceName: "trophy2" } as const)
-      : ({ npServiceName: "trophy" } as const);
-  // contain name and descriptions for all trophies in the group
-  const titleTrophies = await getTitleTrophies(
-    authorization,
-    firstTrophy.npCommunicationId,
-    "all",
-    options,
-  );
-  const earnedForTitle = await getUserTrophiesEarnedForTitle(
-    authorization,
-    "me",
-    firstTrophy.npCommunicationId,
-    "all",
-    options,
-  );
-
-  const preparedTrophies = earnedForTitle.trophies
-    .filter((v) => v.earned)
-    .map((v) => {
-      const trophyInfo = titleTrophies.trophies.find(
-        (tr) => tr.trophyId === v.trophyId,
-      );
-      return {
-        ...v,
-        name: trophyInfo?.trophyName,
-        details: trophyInfo?.trophyDetail,
-        iconUrl: trophyInfo?.trophyIconUrl ?? "",
-      };
-    });
-
-  return {
-    gameTitle: firstTrophy.trophyTitleName,
-    trophiesProgress: firstTrophy.progress,
-    trophies: preparedTrophies,
-  };
-};
-
-export const getLatestTodayTrophies = async (
-  userName: string | null,
-): Promise<{
-  trophies: {
-    name: string | undefined;
-    details: string | undefined;
-    iconUrl: string;
-    trophyId: number;
-    trophyHidden: boolean;
-    earned?: boolean | undefined;
-    earnedDateTime?: string | undefined;
-    trophyType: TrophyType;
-    trophyRare?: TrophyRarity | undefined;
-    trophyEarnedRate?: string | undefined;
-    trophyProgressTargetValue?: string | undefined;
-  }[];
-  gameTitle: string | null;
-  trophiesProgress: number;
-}> => {
-  const token = getUserToken(userName);
-  const authorization = await getAuthorizationTokens(token);
-
-  const userTitlesResponse = await getUserTitles(
-    { accessToken: authorization.accessToken },
-    "me",
-  );
-  const firstTrophy = userTitlesResponse.trophyTitles[0];
 
   if (!firstTrophy)
     return { gameTitle: null, trophiesProgress: 0, trophies: [] };

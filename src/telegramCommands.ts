@@ -3,10 +3,9 @@ import TelegramBot from "node-telegram-bot-api";
 import { telegramBot, discordClient } from "./botClients";
 import { config } from "./config";
 import { sendMessageToTelegram } from "./messageService";
-
-import { TROPHY_EMOJIS } from "./psn/trophy-emojis.constant";
 import { getTrophiesBySearch } from "./psn/psn-api";
 import { formatTime } from "./utils/format-time";
+import { getTrophyEmoji } from "./achievement-platform-strategies/constants/trophy-emojis.constant";
 
 /**
  * Interface for command definitions used in a help message
@@ -142,7 +141,7 @@ telegramBot.onText(
         message = `🏆 *Latest Trophies for: ${gameTitle}. Current progress: ${trophiesProgress}*\n`;
         chunk.forEach((trophy) => {
           message +=
-            `${TROPHY_EMOJIS[trophy.trophyType]} *${trophy.name}* (${trophy.trophyType})\n` +
+            `${getTrophyEmoji(trophy.trophyType)} *${trophy.name}* (${trophy.trophyType})\n` +
             `📜 ${trophy.details}\n` +
             `🌟 Earned Rate: ${trophy.trophyEarnedRate}%\n` +
             `⌚ Date UTC: ${formatTime(trophy.earnedDateTime!)}\n\n`;
@@ -228,7 +227,7 @@ telegramBot.onText(
         message += `**${user1} has these trophies (not earned by ${user2}):**\n`;
         for (const trophy of differences.user1Only) {
           message +=
-            `${TROPHY_EMOJIS[trophy.trophyType]} *${trophy.name}* [${trophy.trophyType}]\n` +
+            `${getTrophyEmoji(trophy.trophyType)} *${trophy.name}* [${trophy.trophyType}]\n` +
             `📜 ${trophy.details}\n` +
             `🌟 Earned Rate: ${trophy.trophyEarnedRate}%\n` +
             `⌚ Date UTC: ${formatTime(trophy.earnedDateTime!)}\n\n`;
@@ -242,7 +241,7 @@ telegramBot.onText(
         message += `**${user2} has these trophies (not earned by ${user1}):**\n`;
         for (const trophy of differences.user2Only) {
           message +=
-            `${TROPHY_EMOJIS[trophy.trophyType]} *${trophy.name}* [${trophy.trophyType}]\n` +
+            `${getTrophyEmoji(trophy.trophyType)} *${trophy.name}* [${trophy.trophyType}]\n` +
             `📜 ${trophy.details}\n` +
             `🌟 Earned Rate: ${trophy.trophyEarnedRate}%\n` +
             `⌚ Date UTC: ${formatTime(trophy.earnedDateTime!)}\n\n`;

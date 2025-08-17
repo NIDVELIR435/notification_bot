@@ -1,11 +1,11 @@
 import { config } from "./config";
 import { achievementDb } from "./database";
 import { sendMessageToTelegram } from "./messageService";
-import { getLatestTodayTrophies } from "./psn/psn-api";
-import { TROPHY_EMOJIS } from "./psn/trophy-emojis.constant";
-import { TrophyType } from "psn-api";
 import { isToday, millisecondsToSeconds, format } from "date-fns";
 import { capitalize } from "lodash";
+import { PSPlatformStrategy } from "./achievement-platform-strategies/ps-platform-strategy";
+import { AchievementPlatformStrategy } from "./achievement-platform-strategies/achievement-platform-strategies.abstract";
+import { getTrophyEmoji } from "./achievement-platform-strategies/constants/trophy-emojis.constant";
 
 /**
  * Achievement scheduler that checks for new achievements periodically
@@ -14,9 +14,13 @@ export class AchievementScheduler {
   private intervalId: NodeJS.Timeout | null = null;
   private intervalMs: number;
 
-  constructor() {
+  private strategies: AchievementPlatformStrategy[] = [
+    new PSPlatformStrategy(),
+  ];
+
+  constructor(private readonly params: { achievementCheckInterval: number }) {
     // Get interval from environment variable (default: 5 minutes)
-    this.intervalMs = config.achievementCheckInterval;
+    this.intervalMs = this.params.achievementCheckInterval;
     console.log(
       `🕐 Achievement scheduler initialized with ${millisecondsToSeconds(this.intervalMs)}s interval`,
     );
@@ -84,10 +88,16 @@ export class AchievementScheduler {
     try {
       console.log(`🎮 Checking achievements for user: ${userName}`);
 
-      const result = await getLatestTodayTrophies(userName);
+      const results = await Promise.all(
+        this.strategies.map(async (strategy) =>
+          strategy.todayLatestTrophies(userName),
+        ),
+      );
 
-      if (result.trophies.length > 0) {
-        await this.processTrophies(userName, result.trophies, result.gameTitle);
+      for (const r of results) {
+        if (r.trophies.length > 0) {
+          await this.processTrophies(userName, r.trophies, r.gameTitle);
+        }
       }
     } catch (error) {
       console.error(`❌ Error checking user ${userName} achievements:`, error);
@@ -148,7 +158,7 @@ export class AchievementScheduler {
     trophy: any,
     gameTitle: string,
   ): Promise<void> {
-    const trophyEmoji = this.getTrophyEmoji(trophy.trophyType);
+    const trophyEmoji = getTrophyEmoji(trophy.trophyType);
     const trophyName = trophy.name || "Unknown Trophy";
     const rarityText = trophy.trophyRare ? ` (Rare: ${trophy.trophyRare})` : "";
     const earnedRate = trophy.trophyEarnedRate
@@ -165,14 +175,9 @@ export class AchievementScheduler {
 
     await sendMessageToTelegram(message, { parse_mode: "Markdown" });
   }
-
-  /**
-   * Get emoji for trophy type
-   */
-  private getTrophyEmoji(trophyType: TrophyType): string {
-    return TROPHY_EMOJIS[trophyType];
-  }
 }
 
 // Export singleton instance
-export const achievementScheduler = new AchievementScheduler();
+export const achievementScheduler = new AchievementScheduler({
+  achievementCheckInterval: config.achievementCheckInterval,
+});

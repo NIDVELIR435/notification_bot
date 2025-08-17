@@ -15,6 +15,7 @@ export interface AppConfig {
   /** Duration in milliseconds to ignore repeated user events (default: 5 minutes) */
   userIgnoreDurationMs: number;
   psTokens: { [Key in string]: string };
+  xboxXuids: { [Key in string]: string };
   achievementCheckInterval: number;
   achievementRecordPreserveDays: number;
   trackAchievementTypes: TrophyType[];
@@ -30,6 +31,7 @@ export const config: AppConfig = {
   userIgnoreDurationMs:
     Number(process.env.IGNORE_USERS_DURATION_IN_MILISECONDS) ?? 300000,
   psTokens: JSON.parse(process.env.PSN_TOKENS ?? ""),
+  xboxXuids: JSON.parse(process.env.XBOX_XUIDS ?? ""),
   achievementCheckInterval:
     Number(process.env.ACHIEVEMENT_CHECK_INTERVAL_MS) ?? 5 * 60 * 1000,
   achievementRecordPreserveDays:
