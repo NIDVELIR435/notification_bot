@@ -34,20 +34,3 @@ export const addUserToIgnoreList = (userId: string | undefined): void => {
 
   ignoredUsers.set(userId, Date.now() + config.userIgnoreDurationMs);
 };
-
-/**
- * Formats a duration in seconds to a human-readable string
- * @param seconds - Duration in seconds
- * @returns Formatted string (e.g., "2h 30m 15s")
- * @example
- * formatDuration(3665) // Returns "1h 1m 5s"
- * formatDuration(90) // Returns "1m 30s"
- * formatDuration(30) // Returns "30s"
- */
-export const formatDuration = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const remainingSeconds = seconds % 60;
-
-  return `${hours > 0 ? hours + "h " : ""}${minutes > 0 ? minutes + "m " : ""}${remainingSeconds}s`;
-};

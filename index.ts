@@ -10,26 +10,9 @@
 
 // ==================== MODULE IMPORTS ====================
 import { config } from "./src/config";
-import { discordClient, telegramBot } from "./src/botClients";
-import { achievementScheduler } from "./src/achievementScheduler";
+import { discordClient } from "./src/botClients";
 
-import { MENU_COMMANDS } from "./src/telegramCommands";
 import "./src/discordEvents";
-
-// ==================== COMMANDS INITIALIZATION ====================
-telegramBot
-  .setMyCommands(MENU_COMMANDS)
-  .then(() => {
-    console.log("✅ Telegram commands set successfully");
-  })
-  .catch((error: Error) => {
-    console.error("❌ Failed to set Telegram commands:", error.message);
-  });
-
-// ==================== ERROR HANDLING ====================
-telegramBot.on("polling_error", (error: Error) => {
-  console.error("❌ Telegram polling error:", error.message);
-});
 
 // ==================== BOT INITIALIZATION ====================
 /**
@@ -45,22 +28,16 @@ discordClient
     console.error("❌ Failed to login to Discord:", error.message);
     process.exit(1);
   });
-/**
- * Start the Achievement scheduler
- */
-achievementScheduler.start();
 
 // ==================== GRACEFUL SHUTDOWN ====================
 process.on("SIGINT", () => {
   console.log("\n🛑 Shutting down bot...");
-  achievementScheduler.stop();
   discordClient.destroy();
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
   console.log("\n🛑 Shutting down bot...");
-  achievementScheduler.stop();
   discordClient.destroy();
   process.exit(0);
 });

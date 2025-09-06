@@ -1,7 +1,9 @@
 {
   "name": "notification_bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "A TypeScript-based notification bot that bridges Discord and Telegram, monitoring Discord server activity and sending real-time notifications to Telegram. The bot features a modular architecture with comprehensive documentation and type safety.",
+  "author": "Yaroslav Mudryi",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "start:dev": "npx ts-node-dev index.ts",
@@ -10,20 +12,12 @@
   },
   "private": true,
   "dependencies": {
-    "date-fns": "^4.1.0",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "lodash": "^4.17.21",
-    "node-telegram-bot-api": "^0.66.0",
-    "psn-api": "^2.15.0",
-    "sqlite3": "^5.1.7"
+    "node-telegram-bot-api": "^0.66.0"
   },
   "devDependencies": {
-    "@types/date-fns": "^2.6.3",
-    "@types/lodash": "^4.17.20",
     "@types/node-telegram-bot-api": "^0.64.10",
-    "@types/sqlite3": "^5.1.0",
     "prettier": "3.6.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"

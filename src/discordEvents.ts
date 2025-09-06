@@ -1,8 +1,7 @@
 import { Events, GuildMember, VoiceState } from "discord.js";
 import { discordClient } from "./botClients";
 import { sendMessageToTelegram } from "./messageService";
-import { isUserIgnored, addUserToIgnoreList } from "./utils";
-import { startVoiceSession } from "./voiceActivity";
+import { isUserIgnored, addUserToIgnoreList } from "./ignored-user-info-utils";
 
 // ==================== EVENT HANDLERS ====================
 
